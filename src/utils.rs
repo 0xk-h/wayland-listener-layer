@@ -41,11 +41,12 @@ fn hex_val(b: u8) -> Option<u8> {
 pub fn output(path: String) {
     let filename = path.rsplit("/").next().unwrap();
 
-    let status = Command::new("notify-send")
+    match Command::new("notify-send")
         .arg(filename)
-        .arg(path)
+        .arg(&path)
         .status()
-        .expect("failed to pipe the output");
-
-    print!("Exit status: {}", status);
+    {
+        Ok(status) => eprintln!("Exit status: {status}"),
+        Err(_) => eprintln!("notify-send not found. Dropped file: {path}"),
+    }
 }

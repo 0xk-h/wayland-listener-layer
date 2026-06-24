@@ -19,7 +19,7 @@ impl Dispatch<WlDataDevice, ()> for App {
         _proxy: &WlDataDevice,
         event: wl_data_device::Event,
         _data: &(),
-        _conn: &Connection,
+        conn: &Connection,
         _qh: &QueueHandle<Self>,
     ) {
         match event {
@@ -50,8 +50,9 @@ impl Dispatch<WlDataDevice, ()> for App {
                         // Fixed: Convert raw i32 to a safe OwnedFd, then borrow it for Wayland
                         let write_owned = unsafe { OwnedFd::from_raw_fd(write_fd) };
                         offer.receive("text/uri-list".to_string(), write_owned.as_fd());
+                        drop(write_owned);
                         
-                        // Note: write_owned is dropped here, automatically closing the write pipe!
+                        let _ = conn.flush();
 
                         let mut file = unsafe { std::fs::File::from_raw_fd(read_fd) };
                         let mut buf = String::new();
@@ -74,6 +75,10 @@ impl Dispatch<WlDataDevice, ()> for App {
                         offer.finish();
                         offer.destroy();
                         state.offer_has_uri = false;
+                    }
+                }else {
+                    if let Some(offer) = state.pending_offer.take() {
+                        offer.destroy();
                     }
                 }
             }

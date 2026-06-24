@@ -377,19 +377,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wayland-listener-layer"
-version = "0.1.0"
-dependencies = [
- "calloop",
- "calloop-wayland-source",
- "libc",
- "smithay-client-toolkit",
- "wayland-client",
- "wayland-protocols",
- "wayland-protocols-wlr",
-]
-
-[[package]]
 name = "wayland-protocols"
 version = "0.32.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -521,6 +508,19 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
+
+[[package]]
+name = "wldrop"
+version = "0.2.1"
+dependencies = [
+ "calloop",
+ "calloop-wayland-source",
+ "libc",
+ "smithay-client-toolkit",
+ "wayland-client",
+ "wayland-protocols",
+ "wayland-protocols-wlr",
+]
 
 [[package]]
 name = "xcursor"

@@ -1,6 +1,6 @@
 [package]
-name = "wayland-listener-layer"
-version = "0.1.0"
+name = "wldrop"
+version = "0.2.1"
 edition = "2024"
 
 [dependencies]

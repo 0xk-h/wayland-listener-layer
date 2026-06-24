@@ -42,14 +42,14 @@ impl LayerShellHandler for App {
         _conn: &Connection,
         _qh: &QueueHandle<Self>,
         _layer: &LayerSurface,
-        configure: LayerSurfaceConfigure,
+        _configure: LayerSurfaceConfigure,
         _serial: u32,
     ) {
-        let (w, h) = (configure.new_size.0.max(1), configure.new_size.1.max(1));
+        //let (w, h) = (configure.new_size.0.max(1), configure.new_size.1.max(1));
 
         if self.pool.is_none() {
             self.pool = Some(
-                SlotPool::new((w * h * 4) as usize, &self.shm)
+                SlotPool::new(4, &self.shm)
                     .expect("failed to create shm pool"),
             );
         }
