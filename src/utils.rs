@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{env, process::Command};
 
 /// Create an anonymous Unix pipe, returning (read_fd, write_fd)
 pub fn nix_pipe() -> (i32, i32) {
@@ -39,14 +39,16 @@ fn hex_val(b: u8) -> Option<u8> {
 
 /// final output so pipe the output to whichever u need
 pub fn output(path: String) {
-    let filename = path.rsplit("/").next().unwrap();
+    let script = format!(
+        "{}/.config/wldrop/wldrop-exec.sh",
+        env::var("HOME").unwrap()
+    );
 
-    match Command::new("notify-send")
-        .arg(filename)
+    match Command::new(script)
         .arg(&path)
         .status()
     {
         Ok(status) => eprintln!("Exit status: {status}"),
-        Err(_) => eprintln!("notify-send not found. Dropped file: {path}"),
+        Err(_) => eprintln!("~/.config/wldrop/wldrop-exec.sh file not present. Dropped file: {path}"),
     }
 }
