@@ -68,8 +68,8 @@ impl LayerShellHandler for App {
         for chunk in canvas.chunks_exact_mut(4) {
             chunk[0] = 0;   // B
             chunk[1] = 0;   // G
-            chunk[2] = 255; // R
-            chunk[3] = 255; // A
+            chunk[2] = 0;   // R
+            chunk[3] = 0;   // A
         }
 
         self.layer_surface.wl_surface().attach(Some(buffer.wl_buffer()), 0, 0);
