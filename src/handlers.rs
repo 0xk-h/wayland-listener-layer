@@ -31,7 +31,6 @@ use wayland_client::{
 };
 
 // Layer Shell
-
 impl LayerShellHandler for App {
     fn closed(&mut self, _conn: &Connection, _qh: &QueueHandle<Self>, _layer: &LayerSurface) {
         std::process::exit(0);
@@ -64,7 +63,7 @@ impl LayerShellHandler for App {
             .create_buffer(w as i32, h as i32, (w * 4) as i32, Format::Argb8888)
             .expect("failed to create buffer");
 
-        // Fill entire canvas red (ARGB8888 byte order: B=0, G=0, R=255, A=255)
+        // Fill entire canvas 0 (ARGB8888)
         for chunk in canvas.chunks_exact_mut(4) {
             chunk[0] = 0;   // B
             chunk[1] = 0;   // G
@@ -79,7 +78,6 @@ impl LayerShellHandler for App {
 }
 
 // Register Seat
-
 impl SeatHandler for App {
     fn seat_state(&mut self) -> &mut SeatState {
         &mut self.seat_state
@@ -109,7 +107,6 @@ impl SeatHandler for App {
 }
 
 // wl_data_device_manager - no events
-
 impl Dispatch<WlDataDeviceManager, ()> for App {
     fn event(
         _: &mut Self,
@@ -122,7 +119,6 @@ impl Dispatch<WlDataDeviceManager, ()> for App {
 }
 
 // wl_buffer - ignores events
-
 impl Dispatch<WlBuffer, ()> for App {
     fn event(
         _: &mut Self,
@@ -135,7 +131,6 @@ impl Dispatch<WlBuffer, ()> for App {
 }
 
 // Compositor
-
 impl CompositorHandler for App {
     fn surface_enter(&mut self, _: &Connection, _: &QueueHandle<Self>, _: &WlSurface, _: &WlOutput) {}
     fn surface_leave(&mut self, _: &Connection, _: &QueueHandle<Self>, _: &WlSurface, _: &WlOutput) {}
@@ -145,7 +140,6 @@ impl CompositorHandler for App {
 }
 
 // Output
-
 impl OutputHandler for App {
     fn output_state(&mut self) -> &mut OutputState {
         &mut self.output_state
@@ -156,7 +150,6 @@ impl OutputHandler for App {
 }
 
 // Shm
-
 impl ShmHandler for App {
     fn shm_state(&mut self) -> &mut Shm {
         &mut self.shm
@@ -164,7 +157,6 @@ impl ShmHandler for App {
 }
 
 // Registry
-
 impl ProvidesRegistryState for App {
     fn registry(&mut self) -> &mut RegistryState {
         &mut self.registry_state
@@ -173,7 +165,6 @@ impl ProvidesRegistryState for App {
 }
 
 // Pointer
-
 impl PointerHandler for App {
     fn pointer_frame(
         &mut self,
@@ -185,7 +176,6 @@ impl PointerHandler for App {
 }
 
 // Delegates
-
 delegate_compositor!(App);
 delegate_output!(App);
 delegate_shm!(App);

@@ -34,7 +34,6 @@ fn main() {
     let seat_state = SeatState::new(&globals, &qh);
     let layer_shell = LayerShell::bind(&globals, &qh).expect("wlr-layer-shell missing");
     
-    // Fixed: Added turbofish type hint to satisfy wayland-client 0.31 strict typing
     let data_device_manager = globals.bind::<WlDataDeviceManager, _, _>(&qh, 3..=3, ()).ok();
 
     let surface = compositor_state.create_surface(&qh);
@@ -64,8 +63,6 @@ fn main() {
     event_queue.roundtrip(&mut app).unwrap();
 
     // Force data device creation if the seat already existed at startup.
-    // new_seat only fires for seats that arrive *after* the app starts —
-    // on Hyprland the seat is already present, so new_seat almost never fires.
     if app.data_device.is_none() {
         if let Some(mgr) = &app.data_device_manager {
             if let Some(seat) = app.seat_state.seats().next() {
@@ -75,7 +72,6 @@ fn main() {
     }
 
     // Second roundtrip flushes the data device registration to the compositor
-    // so DnD events start arriving before we hand off to the event loop.
     event_queue.roundtrip(&mut app).unwrap();
 
     let mut event_loop: EventLoop<App> = EventLoop::try_new().expect("failed to create event loop");
