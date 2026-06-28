@@ -42,27 +42,35 @@ impl LayerShellHandler for App {
         _conn: &Connection,
         _qh: &QueueHandle<Self>,
         _layer: &LayerSurface,
-        _configure: LayerSurfaceConfigure,
+        configure: LayerSurfaceConfigure,
         _serial: u32,
     ) {
-        //let (w, h) = (configure.new_size.0.max(1), configure.new_size.1.max(1));
+        let (w, h) = (configure.new_size.0.max(1), configure.new_size.1.max(1));
 
         if self.pool.is_none() {
             self.pool = Some(
-                SlotPool::new(4, &self.shm)
+                SlotPool::new((w * h * 4) as usize, &self.shm)
                     .expect("failed to create shm pool"),
             );
         }
 
         let pool = self.pool.as_mut().unwrap();
+        // let (buffer, canvas) = pool
+        //     .create_buffer(1, 1, 4, Format::Argb8888)
+        //     .expect("failed to create buffer");
+
+        // was: pool.create_buffer(1, 1, 4, Format::Argb8888)
         let (buffer, canvas) = pool
-            .create_buffer(1, 1, 4, Format::Argb8888)
+            .create_buffer(w as i32, h as i32, (w * 4) as i32, Format::Argb8888)
             .expect("failed to create buffer");
 
-        canvas[0] = 0;
-        canvas[1] = 0;
-        canvas[2] = 0;
-        canvas[3] = 0;
+        // Fill entire canvas red (ARGB8888 byte order: B=0, G=0, R=255, A=255)
+        for chunk in canvas.chunks_exact_mut(4) {
+            chunk[0] = 0;   // B
+            chunk[1] = 0;   // G
+            chunk[2] = 255; // R
+            chunk[3] = 255; // A
+        }
 
         self.layer_surface.wl_surface().attach(Some(buffer.wl_buffer()), 0, 0);
         self.layer_surface.wl_surface().commit();

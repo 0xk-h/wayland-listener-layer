@@ -63,6 +63,21 @@ fn main() {
 
     event_queue.roundtrip(&mut app).unwrap();
 
+    // Force data device creation if the seat already existed at startup.
+    // new_seat only fires for seats that arrive *after* the app starts —
+    // on Hyprland the seat is already present, so new_seat almost never fires.
+    if app.data_device.is_none() {
+        if let Some(mgr) = &app.data_device_manager {
+            if let Some(seat) = app.seat_state.seats().next() {
+                app.data_device = Some(mgr.get_data_device(&seat, &qh, ()));
+            }
+        }
+    }
+
+    // Second roundtrip flushes the data device registration to the compositor
+    // so DnD events start arriving before we hand off to the event loop.
+    event_queue.roundtrip(&mut app).unwrap();
+
     let mut event_loop: EventLoop<App> = EventLoop::try_new().expect("failed to create event loop");
     WaylandSource::new(conn, event_queue)
         .insert(event_loop.handle())

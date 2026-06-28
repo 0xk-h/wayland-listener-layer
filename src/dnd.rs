@@ -31,7 +31,6 @@ impl Dispatch<WlDataDevice, ()> for App {
             wl_data_device::Event::Enter { serial, id, .. } => {
                 if let Some(offer) = &id {
                     offer.accept(serial, Some("text/uri-list".to_string()));
-                    // Fixed: Using the strict DndAction enum instead of integers
                     offer.set_actions(DndAction::Copy | DndAction::Move, DndAction::Copy);
                 }
             }
@@ -47,7 +46,6 @@ impl Dispatch<WlDataDevice, ()> for App {
                     if let Some(offer) = state.pending_offer.take() {
                         let (read_fd, write_fd) = nix_pipe();
                         
-                        // Fixed: Convert raw i32 to a safe OwnedFd, then borrow it for Wayland
                         let write_owned = unsafe { OwnedFd::from_raw_fd(write_fd) };
                         offer.receive("text/uri-list".to_string(), write_owned.as_fd());
                         drop(write_owned);
@@ -76,7 +74,7 @@ impl Dispatch<WlDataDevice, ()> for App {
                         offer.destroy();
                         state.offer_has_uri = false;
                     }
-                }else {
+                } else {
                     if let Some(offer) = state.pending_offer.take() {
                         offer.destroy();
                     }
@@ -93,6 +91,12 @@ impl Dispatch<WlDataDevice, ()> for App {
             _ => {}
         }
     }
+
+    // Required by wayland-client 0.31: declare child object creation for opcode 0 (data_offer)
+    // Without this, the library panics when a wl_data_offer arrives during a drag.
+    wayland_client::event_created_child!(App, WlDataDevice, [
+        wayland_client::protocol::wl_data_device::EVT_DATA_OFFER_OPCODE => (WlDataOffer, ())
+    ]);
 }
 
 impl Dispatch<WlDataOffer, ()> for App {
